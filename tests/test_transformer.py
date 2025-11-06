@@ -3,7 +3,8 @@ from src.transformer import (
     computeRTG,
     heuristic_policy,
     _softmax,
-    attention
+    attention,
+    multi_head_attention
 )
 
 
@@ -34,3 +35,11 @@ def test_attention():
 
     assert np.sum(normalise) == 1.0, "Softmaxing is not adding upto 1"
     assert result.shape == (2,), "attention shape not matching up"
+
+def test_multihead():
+    x = np.random.randn(10, 8)
+    output = multi_head_attention(x, head_count=4)
+    print(f"Input shape: {x.shape}")
+    print(f"Output shape: {output.shape}")
+    assert output.shape == (10, 8), "Shape mismatch!"
+    print("✓ Multi-head attention works!")

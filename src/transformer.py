@@ -42,3 +42,36 @@ def attention(Q: np.array, K: np.array, V: np.array):
     output = np.dot(normalised, V)
 
     return output
+
+def multi_head_attention(x: np.array, head_count=4):
+    """
+    x: input sequence
+    num_heads: number of attention heads
+    
+    Returns: combined output from all heads
+    """
+    seq_len , d_model = x.shape
+    d_head = d_model // head_count
+
+    outputs = []
+
+    for head in range(head_count):
+        x_head = x[:, head * d_head : (head+1) * d_head]
+
+        W_q = np.random.randn(d_head, d_head)
+        W_k = np.random.randn(d_head, d_head)
+        W_v = np.random.randn(d_head, d_head)
+
+        Q = x_head @ W_q.T
+        K = x_head @ W_k.T
+        V = x_head @ W_v.T
+
+        head_output = attention(Q, K, V)
+        outputs.append(head_output)
+
+    concat_output = np.concatenate(outputs, axis=1)
+
+    W_output = np.random.randn(d_model, d_model)
+    result = concat_output @ W_output.T
+
+    return result

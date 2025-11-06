@@ -67,9 +67,9 @@ Now when I am processing state $s_3$ which of the previous states are relevant t
 BUT instead of directly dot producting because representing the states as a vector or tensor might not always be relevant. Our state have [angle, angular vel, pos, vel] and when we dot product with another such vector, they dont have any semantic meaning ie not any useful philosophy except blindly multiplying and adding.
 
 So we come up with 3 new vectors $(Q, K, V)$
-- **Q** -> what are we looking for? -> **QUERY**  
+- **Q** -> what are we looking for? -> **QUERY** -> it transforms our raw input to our representation space  
     [I need a good camera phone]
-- **K** -> what aspects does it advertises?  -> **Matching**  
+- **K** -> what aspects does it advertises?  -> **Matching** -> match with our query in the space  
     [I offer good display, i offer good battery, i offer good camera]
 - **V** -> the actual thing. -> **Retrieval**  
     [samsung, oneplus, samsung]
@@ -97,3 +97,9 @@ So after trial and error with some K values I decide to satisfy with
 - $50$ episodes with $K=8$ -> falls slowly
 - $70$ episodes with $K=10$ -> a good sweet spot
 - $30$ episodes with $K=12$ -> perfect control and oscillation
+
+### Multiplie Attention is what I need
+My single attention head can only learn one relevance pattern at once, only one purpose.
+But we need to know how the velocity changs on how is the tilt. Then we combine all the understandings into one.
+
+Mathematically, one attention only transforms to single subspace. So independent features need separate subspaces to be projected on.
