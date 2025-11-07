@@ -83,8 +83,13 @@ But when fetching data from V we do not index the value with maximum relevant.
 But I had stepped in a domain of wonder,
 assume I wanted a sweet fruit but I am getting 60% of banana, 30% of apple, 10% of lemon. I wanted a sweet FRUIT, why am I getting a smoothie??
 
-This is what I realised when reading the paper that the Attention function is not itself the solution but a "learned feature representation" which will later be used in the Neural Network. 
+This is what I realised when reading the paper that the Attention function is not itself the solution but a "learned feature representation" which will later be used in the Neural Network.   
 ![attention function](figs/attention_func.png)
+
+BASICALLY, after I pass my query through all the keys, i get some values, my task would be now to see these values -> these are raw values! I don't understand them! So I use the magic tool called the *softmax* which will turn my raw values into percentages of similarities between by query and the keys! Now if my query is largely relevant to the key i.e my need for sweet is largelegy relevant to banana, the key of banana will have larger percentage! So now we just filter out the values with our percentages i.e. we weight the relevancy of the values!! And..wait for it.. that is how we get--
+$$
+Attention(Q,K,V) = Softmax(QK^T)V
+$$
 
 ### Cameo of Control when Generating Data
 I start testing the heuristic policy with different values of K, for $K < 20$ the cart is getting a small tiny push but not enough to stabilise the pole. So eventually the pole falls.
