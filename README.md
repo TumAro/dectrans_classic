@@ -128,3 +128,22 @@ graph LR;
     F --> G[LayerNorm];
     G --> H(output);
 ```
+
+But before we coukd feed the data to our transformer we cannot just feed the raw data so we first need to tokenise our data.
+
+### Decision Transformer
+So basically imagine classical Reinforcement Learning the pipeline is often:
+> Agent tries action -> gets rewards/punishment -> update policy -> tries again
+
+The issues with RL is it needs MILLIONS of trial-and-errors and interaction with environment to generate learning data which consumes so much time and computation. It learns from scratch so there we cant reuse past data!
+
+But in this world we have abundance of data. So why not use Machine Learning methods? Because of sequential action and states and teh rewards that generates. They are some temporal dependencies. Where in ML each row, each data is assumed to be exclusively independent.
+
+That is when we come up to make the problem into a sequence model.
+
+In our architecture 
+- **Embedding:** We transform our data to meaningful data for attention mechanism.
+- **Attention:** Finds the patterns in history.
+- **Multilayer Perceptron:** Make reason about what those patterns means
+
+What makes decision transformer different than ML is it trains to learn [*Policy*](https://www.baeldung.com/cs/ml-policy-reinforcement-learning) using deep learning mechanics like Backpropagation, and so on.
