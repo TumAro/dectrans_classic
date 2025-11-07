@@ -91,7 +91,7 @@ $$
 Attention(Q,K,V) = Softmax(QK^T)V
 $$
 
-### Cameo of Control when Generating Data
+#### Cameo of Control when Generating Data
 I start testing the heuristic policy with different values of K, for $K < 20$ the cart is getting a small tiny push but not enough to stabilise the pole. So eventually the pole falls.
 
 And on the other case at $K \geq 20$, we are getting smooth oscillation.
@@ -103,8 +103,28 @@ So after trial and error with some K values I decide to satisfy with
 - $70$ episodes with $K=10$ -> a good sweet spot
 - $30$ episodes with $K=12$ -> perfect control and oscillation
 
-### Multiplie Attention is what I need
+#### Multiplie Attention is what I need
 My single attention head can only learn one relevance pattern at once, only one purpose.
 But we need to know how the velocity changs on how is the tilt. Then we combine all the understandings into one.
 
 Mathematically, one attention only transforms to single subspace. So independent features need separate subspaces to be projected on.
+
+#### Pipeline
+With attention I have made sense of the tilting and everything FOR the computer to understand. Now we need to add the reasoning part between the ideas. So for that we implement a **MLP** or a Multi Layer Perceptron which is a cool way to just say multiple perceptrons i.e. a Feedforward Neural Network.
+
+Also with backpropagation we keep multiplying the vallues of gradient with chainrule so after some time it diminishes to very tiny minute values which becomes unuseful so we keep residue of our original data by just adding them.
+
+Think of it as instead of making it a memory game where you try to remember the picture in the first round and make edits, in every round you see the image of the round again and make edit that way you dont lose your memory
+
+```mermaid
+graph LR;
+    A(x) --> B[MultiHeadAttention];
+    B --> C((+));
+    A --> C;
+    C --> D[LayerNorm];
+    D --> E[MLP];
+    E --> F((+));
+    D --> F;
+    F --> G[LayerNorm];
+    G --> H(output);
+```

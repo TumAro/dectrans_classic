@@ -1,10 +1,13 @@
 import numpy as np
+import torch
+import torch.nn as nn
 from src.transformer import (
     computeRTG,
     heuristic_policy,
     _softmax,
     attention,
-    multi_head_attention
+    multi_head_attention,
+    Transformer
 )
 
 
@@ -43,3 +46,30 @@ def test_multihead():
     print(f"Output shape: {output.shape}")
     assert output.shape == (10, 8), "Shape mismatch!"
     print("✓ Multi-head attention works!")
+
+def test_transformer_shape():
+    batch = 2
+    dim = 128
+    seq = 20
+    transformer = Transformer(dim,2)
+    x = torch.randn(batch, seq, dim)
+
+    y = transformer(x)
+
+    assert y.shape == (batch, seq, dim), "shapes not matching"
+
+def test_transformer_grad():
+    batch = 2
+    dim = 128
+    seq = 20
+    transformer = Transformer(dim,2)
+    x = torch.randn(batch, seq, dim)
+    forward = transformer(x)
+    lossfunc = nn.MSELoss()
+    loss = lossfunc(forward,x)
+    loss.backward()
+
+    assert transformer._mlp_1.weight.grad is not None, "layer 1 has no gradient"
+    assert transformer._mlp_2.weight.grad is not None, "layer 2 has no gradient"
+    assert transformer._norm_1.weight.grad is not None, "layer norm 1 has no gradient"
+    assert transformer._norm_2.weight.grad is not None, "layer norm 2 has no gradient"

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 import numpy as np
 
 def computeRTG(rewards: List[float]) -> List[float]:
@@ -135,3 +135,88 @@ class MultiHeadAttention(nn.Module):
         )
         result = self.W_o(concat)
         return result
+
+class Transformer(nn.Module):
+    def __init__(self, dimension, head_count):
+        super().__init__()
+
+        self._attention = MultiHeadAttention(dimension, head_count)
+
+        # * For MLP Pass
+        self._norm_1 = nn.LayerNorm(dimension)
+        self._mlp_1 = nn.Linear(dimension, dimension*4)
+        self._mlp_2 = nn.Linear(dimension*4, dimension)
+        self._norm_2 = nn.LayerNorm(dimension)
+
+
+
+    def forward(self, x: torch.Tensor):
+        """
+        input:
+            x -> (batch, seq_len, dimension) tensors
+        output:
+
+        """
+
+        y = self._attention(x) + x      # * Multi Head Attention
+
+        y_norm = self._norm_1(y)        # * Layer Norm
+
+        y = self._mlp_1(y_norm)         # * Hidden Layer 1 | dimension -> dimension*4
+        y = F.gelu(y)                   # * normalis
+        y = self._mlp_2(y) + y_norm     # * Hidden Layer 2 | dimension*4 -> dimension
+
+        y_norm = self._norm_2(y)        # * Layer Norm -> output
+
+        return y_norm
+
+# ============================================================================
+# ============================================================================
+
+class Tokenisation(nn.Module):
+    def __init__(self, dimension: Tuple[int, int, int]) -> None:
+        super().__init__()
+
+        state_dim, action_dim, rtg_dim = dimension
+
+        self.embed_state = nn.Linear(state_dim, 32)
+        self.embed_action = nn.Linear(action_dim, 32)
+        self.embed_rtg = nn.Linear(rtg_dim, 32)
+
+        self.pos_encoding = nn.Embedding(20 * len(dimension), 32)
+
+    def forward(self, states, actions, rtg):
+
+        y_state = self.embed_state(states)
+        y_action = self.embed_action(actions)
+        y_rtg = self.embed_rtg(rtg)
+
+        stacked = torch.stack([y_rtg, y_action, y_state], dim=2)
+        interleaved = stacked.reshape(stacked.shape[0], -1, 32)
+
+        seq_len = interleaved.shape[1]
+        positions = torch.arange(seq_len)
+
+        pos_embed = self.pos_encoding(positions)
+        return interleaved + pos_embed
+
+class Pipeline(nn.Module):
+    def __init__(self, dimension: Tuple[int, int, int], head_count, layer_count = 2) -> None:
+        super().__init__()
+
+        self._tokeniser = Tokenisation(dimension)
+        self._transformers = nn.ModuleList([
+            Transformer(32, head_count) for _ in range(layer_count)
+        ])
+
+        self._output_layer = nn.Linear(32,1)
+
+    def forward(self, states, actions, rtg):
+        y = self._tokeniser(states, actions, rtg)
+        for transformer in self._transformers:
+            y = transformer(y)
+
+        state_tokens = y[:, 1::3, :]
+        output = self._output_layer(state_tokens)
+
+        return output
