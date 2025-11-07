@@ -9,7 +9,7 @@ from src.transformer import (
 
 
 def test_rtg():
-    rewards = [1, 1, 1, 0]
+    rewards = [1.0, 1.0, 1.0, 0]
     rtg = computeRTG(rewards)
     assert rtg == [3, 2, 1, 0], "RTG Code error"
 
