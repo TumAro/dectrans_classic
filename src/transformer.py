@@ -195,7 +195,7 @@ class Tokenisation(nn.Module):
         interleaved = stacked.reshape(stacked.shape[0], -1, 32)
 
         seq_len = interleaved.shape[1]
-        positions = torch.arange(seq_len)
+        positions = torch.arange(seq_len, device=states.device)
 
         pos_embed = self.pos_encoding(positions)
         return interleaved + pos_embed
